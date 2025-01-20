@@ -3,6 +3,7 @@
 #include <cstring>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h> // Incloure inet_ntop
 #include <unistd.h>
 
 #define PORT 9000
@@ -13,6 +14,7 @@ void startServer() {
     struct sockaddr_in address;
     int addrlen = sizeof(address);
     char buffer[BUFFER_SIZE] = {0};
+    char client_ip[INET_ADDRSTRLEN]; // Buffer per a l'adreça IP del client
 
     // Crear socket
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
@@ -46,7 +48,10 @@ void startServer() {
             exit(EXIT_FAILURE);
         }
 
-        std::cout << "Connexió acceptada des del client " << inet_ntoa(address.sin_addr) << std::endl;
+        // Convertir l'adreça IP del client a format llegible
+        inet_ntop(AF_INET, &address.sin_addr, client_ip, INET_ADDRSTRLEN);
+
+        std::cout << "Connexió acceptada des del client " << client_ip << std::endl;
 
         // Obtenir l'hora i la data actuals
         std::time_t now = std::time(nullptr);
@@ -59,6 +64,7 @@ void startServer() {
         close(client_socket); // Tancar la connexió amb el client
     }
 }
+
 int main() {
     startServer();
     return 0;
